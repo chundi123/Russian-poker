@@ -5,6 +5,7 @@ import com.demo.tournament.repository.TournamentStatusRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,13 +13,16 @@ public class DataInitializer implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
     private final TournamentStatusRepository tournamentStatusRepository;
+    private final JdbcTemplate jdbcTemplate;
 
-    public DataInitializer(TournamentStatusRepository tournamentStatusRepository) {
+    public DataInitializer(TournamentStatusRepository tournamentStatusRepository, JdbcTemplate jdbcTemplate) {
         this.tournamentStatusRepository = tournamentStatusRepository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public void run(String... args) {
+        logSiteTableColumns();
         logger.info("Checking tournament_status table initialization...");
         
         long count = tournamentStatusRepository.count();
@@ -30,6 +34,19 @@ public class DataInitializer implements CommandLineRunner {
             logger.info("Tournament status initialization completed!");
         } else {
             logger.info("Tournament status table already initialized with {} records", count);
+        }
+    }
+
+    private void logSiteTableColumns() {
+        try {
+            logger.info("Inspecting tns_site columns...");
+            jdbcTemplate.query(
+                    "select column_name, data_type from information_schema.columns where table_schema = current_schema() and table_name = 'tns_site'",
+                    rs -> {
+                        logger.info("tns_site column: {} ({})", rs.getString("column_name"), rs.getString("data_type"));
+                    });
+        } catch (Exception e) {
+            logger.warn("Unable to inspect tns_site columns: {}", e.getMessage());
         }
     }
 

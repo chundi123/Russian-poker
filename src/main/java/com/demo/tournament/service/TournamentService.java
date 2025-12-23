@@ -7,6 +7,7 @@ import com.demo.tournament.entity.*;
 import com.demo.tournament.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.quartz.SchedulerException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ public class TournamentService {
     private final RoundResultRepository roundResultRepository;
     private final TournamentStatusRepository tournamentStatusRepository;
     private final SiteRepository siteRepository;
+    private final TournamentSchedulerService tournamentSchedulerService;
 
     public TournamentService(TournamentRepository tournamentRepository,
                              AccountRepository accountRepository,
@@ -29,7 +31,8 @@ public class TournamentService {
                              TournamentRoundRepository tournamentRoundRepository,
                              RoundResultRepository roundResultRepository,
                              TournamentStatusRepository tournamentStatusRepository,
-                             SiteRepository siteRepository) {
+                             SiteRepository siteRepository,
+                             TournamentSchedulerService tournamentSchedulerService) {
         this.tournamentRepository = tournamentRepository;
         this.accountRepository = accountRepository;
         this.tournamentPlayerRepository = tournamentPlayerRepository;
@@ -37,6 +40,7 @@ public class TournamentService {
         this.roundResultRepository = roundResultRepository;
         this.tournamentStatusRepository = tournamentStatusRepository;
         this.siteRepository = siteRepository;
+        this.tournamentSchedulerService = tournamentSchedulerService;
     }
 
     @Transactional
@@ -62,8 +66,38 @@ public class TournamentService {
         } else if (!tournament.getTournamentType().equals("PVD") && !tournament.getTournamentType().equals("PVP")) {
             throw new IllegalArgumentException("Tournament type must be PVD or PVP");
         }
+
+        // Validate time sequence
+        if (tournament.getRegistrationStartTime() != null && tournament.getRegistrationEndTime() != null) {
+            if (tournament.getRegistrationStartTime().isAfter(tournament.getRegistrationEndTime())) {
+                throw new IllegalArgumentException("Registration start time must be before registration end time");
+            }
+        }
+        if (tournament.getRegistrationEndTime() != null && tournament.getTournamentStartTime() != null) {
+            if (tournament.getRegistrationEndTime().isAfter(tournament.getTournamentStartTime())) {
+                throw new IllegalArgumentException("Registration end time must be before tournament start time");
+            }
+        }
+
+        Tournament savedTournament = tournamentRepository.save(tournament);
+
+        // Schedule jobs if times are provided
+        try {
+            if (savedTournament.getRegistrationStartTime() != null) {
+                tournamentSchedulerService.scheduleRegistrationOpen(savedTournament.getId(), savedTournament.getRegistrationStartTime());
+            }
+            if (savedTournament.getTournamentStartTime() != null) {
+                tournamentSchedulerService.scheduleTournamentStart(savedTournament.getId(), savedTournament.getTournamentStartTime());
+                // Schedule rounds if totalRounds is specified
+                if (savedTournament.getTotalRounds() != null && savedTournament.getTotalRounds() > 0) {
+                    tournamentSchedulerService.scheduleRounds(savedTournament.getId(), savedTournament.getTotalRounds(), savedTournament.getTournamentStartTime());
+                }
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to schedule tournament jobs: " + e.getMessage(), e);
+        }
         
-        return tournamentRepository.save(tournament);
+        return savedTournament;
     }
 
     public Optional<Tournament> getTournamentById(Long id) {
@@ -233,6 +267,21 @@ public class TournamentService {
         }
         
         return tournamentRepository.save(tournament);
+    }
+
+    @Transactional
+    public void cancelTournament(Long id) throws SchedulerException {
+        Tournament tournament = tournamentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Tournament not found"));
+
+        TournamentStatus cancelledStatus = tournamentStatusRepository.findByStatusCode("CANCELLED")
+                .orElseThrow(() -> new IllegalStateException("CANCELLED status not found in database"));
+
+        tournament.setStatus(cancelledStatus);
+        tournamentRepository.save(tournament);
+
+        // Cancel all scheduled jobs
+        tournamentSchedulerService.cancelScheduledJobs(id);
     }
 }
 

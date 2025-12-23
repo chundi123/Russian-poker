@@ -38,6 +38,18 @@ public class Tournament {
     @Column(name = "max_players")
     private Integer maxPlayers;
 
+    @Column(name = "registration_start_time")
+    private Instant registrationStartTime;
+
+    @Column(name = "registration_end_time")
+    private Instant registrationEndTime;
+
+    @Column(name = "tournament_start_time")
+    private Instant tournamentStartTime;
+
+    @Column(name = "current_round")
+    private Integer currentRound;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -124,5 +136,37 @@ public class Tournament {
 
     public void setLastUpdated(Instant lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public Instant getRegistrationStartTime() {
+        return registrationStartTime;
+    }
+
+    public void setRegistrationStartTime(Instant registrationStartTime) {
+        this.registrationStartTime = registrationStartTime;
+    }
+
+    public Instant getRegistrationEndTime() {
+        return registrationEndTime;
+    }
+
+    public void setRegistrationEndTime(Instant registrationEndTime) {
+        this.registrationEndTime = registrationEndTime;
+    }
+
+    public Instant getTournamentStartTime() {
+        return tournamentStartTime;
+    }
+
+    public void setTournamentStartTime(Instant tournamentStartTime) {
+        this.tournamentStartTime = tournamentStartTime;
+    }
+
+    public Integer getCurrentRound() {
+        return currentRound;
+    }
+
+    public void setCurrentRound(Integer currentRound) {
+        this.currentRound = currentRound;
     }
 }

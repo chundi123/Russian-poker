@@ -92,6 +92,35 @@ public class TournamentController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @GetMapping("/{id}/status")
+    public ResponseEntity<?> getTournamentStatus(@PathVariable Long id) {
+        return tournamentService.getTournamentById(id)
+                .map(tournament -> {
+                    String statusCode = tournament.getStatus() != null ? tournament.getStatus().getStatusCode() : null;
+                    return ResponseEntity.ok(new java.util.HashMap<String, Object>() {{
+                        put("tournamentId", tournament.getId());
+                        put("status", statusCode);
+                        put("currentRound", tournament.getCurrentRound());
+                    }});
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<?> cancelTournament(@PathVariable Long id) {
+        try {
+            tournamentService.cancelTournament(id);
+            return ResponseEntity.ok(new java.util.HashMap<String, Object>() {{
+                put("message", "Tournament cancelled successfully");
+                put("tournamentId", id);
+            }});
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
 
 

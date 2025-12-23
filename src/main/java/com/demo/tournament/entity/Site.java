@@ -15,10 +15,10 @@ public class Site {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "site_code", length = 50, nullable = false, unique = true)
+    @Column(name = "code", length = 50, nullable = false, unique = true)
     private String siteCode;
 
-    @Column(name = "site_name", length = 100)
+    @Column(name = "name", length = 100)
     private String siteName;
 
     @Column(name = "status", length = 20, nullable = false)

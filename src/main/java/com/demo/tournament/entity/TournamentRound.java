@@ -9,7 +9,7 @@ import java.time.Instant;
 @Entity
 @Table(
     name = "tns_tournament_round",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"tournament_id", "round_number"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"tournament_id", "round_number"})
 )
 public class TournamentRound {
 
@@ -27,6 +27,12 @@ public class TournamentRound {
 
     @Column(name = "status", length = 20)
     private String status;
+
+    @Column(name = "round_start_time")
+    private Instant roundStartTime;
+
+    @Column(name = "round_end_time")
+    private Instant roundEndTime;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -82,5 +88,21 @@ public class TournamentRound {
 
     public void setLastUpdated(Instant lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public Instant getRoundStartTime() {
+        return roundStartTime;
+    }
+
+    public void setRoundStartTime(Instant roundStartTime) {
+        this.roundStartTime = roundStartTime;
+    }
+
+    public Instant getRoundEndTime() {
+        return roundEndTime;
+    }
+
+    public void setRoundEndTime(Instant roundEndTime) {
+        this.roundEndTime = roundEndTime;
     }
 }

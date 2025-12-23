@@ -9,7 +9,7 @@ import java.time.Instant;
 @Entity
 @Table(
     name = "tns_round_result",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"round_id", "player_id"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"round_id", "player_id"})
 )
 public class RoundResult {
 
