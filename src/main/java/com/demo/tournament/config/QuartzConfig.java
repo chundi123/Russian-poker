@@ -13,6 +13,10 @@ import org.quartz.spi.TriggerFiredBundle;
 
 import javax.sql.DataSource;
 
+// Temporarily disabled Quartz configuration to test frontend without database setup
+// Uncomment the following code when Quartz tables are created in PostgreSQL
+
+/*
 @Configuration
 public class QuartzConfig {
 
@@ -63,4 +67,5 @@ public class QuartzConfig {
         }
     }
 }
+*/
 

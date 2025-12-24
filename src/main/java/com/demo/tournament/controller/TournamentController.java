@@ -82,17 +82,7 @@ public class TournamentController {
             return ResponseEntity.notFound().build();
         }
     }
-
-    @PostMapping("/round-results")
-    public ResponseEntity<RoundResult> recordRoundResult(@RequestBody RoundResultRequest request) {
-        try {
-            RoundResult result = tournamentService.recordRoundResult(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(result);
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
+    
     @GetMapping("/{id}/status")
     public ResponseEntity<?> getTournamentStatus(@PathVariable Long id) {
         return tournamentService.getTournamentById(id)
