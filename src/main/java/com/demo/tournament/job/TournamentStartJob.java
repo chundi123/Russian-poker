@@ -50,7 +50,6 @@ public class TournamentStartJob implements Job {
                     .orElseThrow(() -> new IllegalStateException("RUNNING status not found in database"));
 
             tournament.setStatus(runningStatus);
-            tournament.setCurrentRound(0);
             tournamentRepository.save(tournament);
 
             // Create rounds if totalRounds is specified

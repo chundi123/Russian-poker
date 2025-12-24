@@ -22,7 +22,7 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        logSiteTableColumns();
+        logTMSTableColumns();
         logger.info("Checking tournament_status table initialization...");
         
         long count = tournamentStatusRepository.count();
@@ -37,16 +37,16 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private void logSiteTableColumns() {
+    private void logTMSTableColumns() {
         try {
-            logger.info("Inspecting tns_site columns...");
+            logger.info("Inspecting TMS tables in schema...");
             jdbcTemplate.query(
-                    "select column_name, data_type from information_schema.columns where table_schema = current_schema() and table_name = 'tns_site'",
+                    "select table_name from information_schema.tables where table_schema = current_schema() and table_name like 'tms_%'",
                     rs -> {
-                        logger.info("tns_site column: {} ({})", rs.getString("column_name"), rs.getString("data_type"));
+                        logger.info("Found TMS table: {}", rs.getString("table_name"));
                     });
         } catch (Exception e) {
-            logger.warn("Unable to inspect tns_site columns: {}", e.getMessage());
+            logger.warn("Unable to inspect TMS tables: {}", e.getMessage());
         }
     }
 

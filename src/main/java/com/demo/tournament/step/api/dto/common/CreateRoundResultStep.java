@@ -1,22 +1,15 @@
 package com.demo.tournament.step.api.dto.common;
 
-import com.demo.tournament.dto.RoundResultRequest;
 import com.demo.tournament.interfaces.AbstractTransactionSystemStep;
-import com.demo.tournament.service.TournamentService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component(CreateGameRoundStep.PLUGIN_ID)
-public class CreateGameRoundStep extends AbstractTransactionSystemStep {
+@Component(CreateRoundResultStep.PLUGIN_ID)
+public class CreateRoundResultStep extends AbstractTransactionSystemStep {
 
-    @Autowired
-    private TournamentService tournamentService;
-
-    public static final String  PLUGIN_ID = "CREATE_GAME_ROUND";
+    public static final String  PLUGIN_ID = "CREATE_GAME_ROUND_RESULT";
 
     @Override
     public StepResultDto executeStep(AbstractPlayerTransactionSession session, String stepParameters) {
-
         return null;
     }
 

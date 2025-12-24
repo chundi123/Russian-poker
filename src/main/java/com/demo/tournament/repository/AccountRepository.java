@@ -1,7 +1,7 @@
 package com.demo.tournament.repository;
 
 import com.demo.tournament.entity.Account;
-import com.demo.tournament.entity.Site;
+import com.demo.tournament.entity.Platform;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -9,11 +9,11 @@ import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    Optional<Account> findBySiteAndUsername(Site site, String username);
+    Optional<Account> findByPlatformAndUsername(Platform platform, String username);
 
-    List<Account> findBySite(Site site);
+    List<Account> findByPlatform(Platform platform);
 
-    List<Account> findBySiteId(Long siteId);
+    List<Account> findByPlatformId(Long platformId);
 
     Optional<Account> findByUsername(String username);
 }

@@ -1,13 +1,18 @@
 package com.demo.tournament.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
 @Entity
-@Table(name = "tns_tournament")
+@Table(name = "tms_tournament")
+@Getter
+@Setter
 public class Tournament {
 
     @Id
@@ -17,24 +22,33 @@ public class Tournament {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "site_id")
-    private Site site;
+    private Platform platform;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "status_id")
     private TournamentStatus status;
 
-    @Column(name = "tournament_type", length = 10, nullable = false)
+    @Column(name = "tournament_type", length = 10)
     private String tournamentType = "PVD";
 
+    @NotBlank(message = "Tournament name is required")
+    @Size(min = 3, max = 100, message = "Tournament name must be between 3 and 100 characters")
     @Column(name = "name", length = 100, nullable = false)
     private String name;
 
+    @NotNull(message = "Starting chips is required")
+    @Min(value = 100, message = "Starting chips must be at least 100")
+    @Max(value = 10000, message = "Starting chips cannot exceed 10,000")
     @Column(name = "starting_chips", nullable = false)
     private Integer startingChips;
 
+    @Min(value = 1, message = "Total rounds must be at least 1")
+    @Max(value = 20, message = "Total rounds cannot exceed 20")
     @Column(name = "total_rounds")
     private Integer totalRounds;
 
+    @Min(value = 2, message = "Maximum players must be at least 2")
+    @Max(value = 1000, message = "Maximum players cannot exceed 1,000")
     @Column(name = "max_players")
     private Integer maxPlayers;
 
@@ -46,9 +60,6 @@ public class Tournament {
 
     @Column(name = "tournament_start_time")
     private Instant tournamentStartTime;
-
-    @Column(name = "current_round")
-    private Integer currentRound;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -66,12 +77,12 @@ public class Tournament {
         this.id = id;
     }
 
-    public Site getSite() {
-        return site;
+    public Platform getPlatform() {
+        return platform;
     }
 
-    public void setSite(Site site) {
-        this.site = site;
+    public void setPlatform(Platform platform) {
+        this.platform = platform;
     }
 
     public TournamentStatus getStatus() {
@@ -162,11 +173,4 @@ public class Tournament {
         this.tournamentStartTime = tournamentStartTime;
     }
 
-    public Integer getCurrentRound() {
-        return currentRound;
-    }
-
-    public void setCurrentRound(Integer currentRound) {
-        this.currentRound = currentRound;
-    }
 }

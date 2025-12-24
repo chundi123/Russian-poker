@@ -15,6 +15,8 @@ public interface RoundResultRepository extends JpaRepository<RoundResult, Long> 
     Optional<RoundResult> findByRoundAndPlayer(TournamentRound round, Account player);
 
     List<RoundResult> findByPlayer(Account player);
+
+    List<RoundResult> findByPlayerOrderByRecordedAtDesc(Account player);
 }
 
 

@@ -2,14 +2,19 @@ package com.demo.tournament.service;
 
 import com.demo.tournament.dto.LeaderboardRowDto;
 import com.demo.tournament.dto.LobbyTournamentDto;
+import com.demo.tournament.dto.PlayerTransactionHistoryDto;
 import com.demo.tournament.dto.RoundResultRequest;
+import com.demo.tournament.repository.RoundResultRepository;
 import com.demo.tournament.entity.*;
 import com.demo.tournament.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -19,22 +24,59 @@ public class TournamentService {
     private final TournamentPlayerRepository tournamentPlayerRepository;
     private final TournamentRoundRepository tournamentRoundRepository;
     private final RoundResultRepository roundResultRepository;
+    private final TournamentStatusRepository tournamentStatusRepository;
+    private final PlatformRepository platformRepository;
 
     public TournamentService(TournamentRepository tournamentRepository,
                              AccountRepository accountRepository,
                              TournamentPlayerRepository tournamentPlayerRepository,
                              TournamentRoundRepository tournamentRoundRepository,
-                             RoundResultRepository roundResultRepository) {
+                             RoundResultRepository roundResultRepository,
+                             TournamentStatusRepository tournamentStatusRepository,
+                             PlatformRepository platformRepository) {
         this.tournamentRepository = tournamentRepository;
         this.accountRepository = accountRepository;
         this.tournamentPlayerRepository = tournamentPlayerRepository;
         this.tournamentRoundRepository = tournamentRoundRepository;
         this.roundResultRepository = roundResultRepository;
+        this.tournamentStatusRepository = tournamentStatusRepository;
+        this.platformRepository = platformRepository;
     }
 
     @Transactional
     public Tournament createTournament(Tournament tournament) {
+        // Validate tournament data
+        System.out.println("Validating tournament data: " + tournament);
+        validateTournamentData(tournament);
+        System.out.println("Validation passed, saving tournament");
         return tournamentRepository.save(tournament);
+    }
+
+    private void validateTournamentData(Tournament tournament) {
+        if (tournament.getName() == null || tournament.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Tournament name is required");
+        }
+        if (tournament.getName().length() < 3 || tournament.getName().length() > 100) {
+            throw new IllegalArgumentException("Tournament name must be between 3 and 100 characters");
+        }
+        if (tournament.getStartingChips() == null || tournament.getStartingChips() < 100) {
+            throw new IllegalArgumentException("Starting chips must be at least 100");
+        }
+        if (tournament.getStartingChips() > 10000) {
+            throw new IllegalArgumentException("Starting chips cannot exceed 10,000");
+        }
+        if (tournament.getTotalRounds() != null && tournament.getTotalRounds() < 1) {
+            throw new IllegalArgumentException("Total rounds must be at least 1");
+        }
+        if (tournament.getTotalRounds() != null && tournament.getTotalRounds() > 20) {
+            throw new IllegalArgumentException("Total rounds cannot exceed 20");
+        }
+        if (tournament.getMaxPlayers() != null && tournament.getMaxPlayers() < 2) {
+            throw new IllegalArgumentException("Maximum players must be at least 2");
+        }
+        if (tournament.getMaxPlayers() != null && tournament.getMaxPlayers() > 1000) {
+            throw new IllegalArgumentException("Maximum players cannot exceed 1,000");
+        }
     }
     
     @Transactional
@@ -55,7 +97,7 @@ public class TournamentService {
 
     // --- FIX: Implement missing Tournament methods for controller ---
 
-    public List<LobbyTournamentDto> lobbyForSite(Long siteId) {
+    public List<LobbyTournamentDto> lobbyForPlatform(Long platformId) {
         // This is just a stub/sample implementation. Customize as needed.
         List<Tournament> tournaments = tournamentRepository.findAll();
         List<LobbyTournamentDto> result = new ArrayList<>();
@@ -95,7 +137,7 @@ public class TournamentService {
         TournamentPlayer tp = new TournamentPlayer();
         tp.setTournament(tournament);
         tp.setPlayer(player);
-        tp.setChipsStart(1000); // default start chips
+        tp.setChipsStart(tournament.getStartingChips()); // default start chips
         tp.setChipsCurrent(1000);
         tp.setChipsReserved(0);
         return tournamentPlayerRepository.save(tp);
@@ -146,7 +188,7 @@ public class TournamentService {
         RoundResult roundResult = new RoundResult();
         roundResult.setRound(round);
         roundResult.setPlayer(player);
-        roundResult.setBetChips(betChips);
+        roundResult.setChips(betChips);
         roundResult.setChipsDelta(delta);
         roundResult.setChipsAfter(chipsAfter);
         roundResult.setResult(resultCode);
@@ -157,5 +199,82 @@ public class TournamentService {
     public void cancelTournament(Long id) {
         // Minimal stub for controller's cancelTournament use; implement as needed.
         tournamentRepository.deleteById(id);
+    }
+
+    // Get comprehensive player transaction history for owner/admin view
+    public List<PlayerTransactionHistoryDto> getPlayerTransactionHistory(Long playerId) {
+        Account player = accountRepository.findById(playerId)
+                .orElseThrow(() -> new IllegalArgumentException("Player not found"));
+
+        List<RoundResult> roundResults = roundResultRepository.findByPlayerOrderByRecordedAtDesc(player);
+        List<PlayerTransactionHistoryDto> transactionHistory = new ArrayList<>();
+
+        for (RoundResult result : roundResults) {
+            TournamentRound round = result.getRound();
+            Tournament tournament = round != null ? round.getTournament() : null;
+
+            PlayerTransactionHistoryDto dto = new PlayerTransactionHistoryDto(
+                result.getRoundResultId(),
+                tournament != null ? tournament.getId() : null,
+                tournament != null ? tournament.getName() : "Unknown Tournament",
+                round != null ? round.getRoundNumber() : 0,
+                result.getChips(),
+                result.getResult(),
+                result.getChipsDelta(),
+                result.getChipsAfter(),
+                result.getRecordedAt()
+            );
+
+            transactionHistory.add(dto);
+        }
+
+        return transactionHistory;
+    }
+
+    // Get player transaction summary (totals, statistics)
+    public Map<String, Object> getPlayerTransactionSummary(Long playerId) {
+        Account player = accountRepository.findById(playerId)
+                .orElseThrow(() -> new IllegalArgumentException("Player not found"));
+
+        List<RoundResult> roundResults = roundResultRepository.findByPlayerOrderByRecordedAtDesc(player);
+
+        int totalBets = roundResults.size();
+        int totalWins = 0;
+        int totalLosses = 0;
+        int totalPushes = 0;
+        int totalBetAmount = 0;
+        int totalWinnings = 0;
+        int totalLossAmount = 0;
+
+        for (RoundResult result : roundResults) {
+            totalBetAmount += result.getChips();
+
+            switch (result.getResult()) {
+                case "WIN" -> {
+                    totalWins++;
+                    totalWinnings += result.getChipsDelta();
+                }
+                case "LOSE" -> {
+                    totalLosses++;
+                    totalLossAmount += Math.abs(result.getChipsDelta());
+                }
+                case "PUSH" -> totalPushes++;
+            }
+        }
+
+        Map<String, Object> summary = new HashMap<>();
+        summary.put("playerId", playerId);
+        summary.put("playerUsername", player.getUsername());
+        summary.put("totalBets", totalBets);
+        summary.put("totalWins", totalWins);
+        summary.put("totalLosses", totalLosses);
+        summary.put("totalPushes", totalPushes);
+        summary.put("totalBetAmount", totalBetAmount);
+        summary.put("totalWinnings", totalWinnings);
+        summary.put("totalLossAmount", totalLossAmount);
+        summary.put("netResult", totalWinnings - totalLossAmount);
+        summary.put("winRate", totalBets > 0 ? (double) totalWins / totalBets * 100 : 0);
+
+        return summary;
     }
 }

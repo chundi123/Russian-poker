@@ -54,9 +54,6 @@ public class RoundOpenJob implements Job {
             round.setRoundStartTime(Instant.now());
             tournamentRoundRepository.save(round);
 
-            tournament.setCurrentRound(roundNumber);
-            tournamentRepository.save(tournament);
-
             log.info("RoundOpenJob: Successfully opened round {} for tournament {}", roundNumber, tournamentId);
         } catch (Exception e) {
             log.error("RoundOpenJob: Error executing job for tournament ID: {}, Round: {}", tournamentId, roundNumber, e);

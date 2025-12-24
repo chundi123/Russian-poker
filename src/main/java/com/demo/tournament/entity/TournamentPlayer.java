@@ -8,7 +8,7 @@ import java.time.Instant;
 
 @Entity
 @Table(
-    name = "tns_tournament_player",
+    name = "tms_tournament_player",
     uniqueConstraints = @UniqueConstraint(columnNames = {"tournament_id", "player_id"})
 )
 public class TournamentPlayer {
@@ -32,19 +32,13 @@ public class TournamentPlayer {
     @Column(name = "chips_current", nullable = false)
     private Integer chipsCurrent;
 
-    @Column(name = "chips_reserved", nullable = false)
-    private Integer chipsReserved = 0;
-
-    @Column(name = "chips_available", insertable = false, updatable = false)
-    private Integer chipsAvailable;
-
-    @Column(name = "total_wins", nullable = false)
+    @Column(name = "total_wins")
     private Integer totalWins = 0;
 
-    @Column(name = "total_losses", nullable = false)
+    @Column(name = "total_losses")
     private Integer totalLosses = 0;
 
-    @Column(name = "total_pushes", nullable = false)
+    @Column(name = "total_pushes")
     private Integer totalPushes = 0;
 
     @Column(name = "final_rank")
@@ -58,6 +52,13 @@ public class TournamentPlayer {
     @Column(name = "last_updated", nullable = false)
     private Instant lastUpdated;
 
+    @Column(name = "chips_reserved")
+    private Integer chipsReserved;
+
+    @Column(name = "chips_available")
+    private Integer chipsAvailable;
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -96,22 +97,6 @@ public class TournamentPlayer {
 
     public void setChipsCurrent(Integer chipsCurrent) {
         this.chipsCurrent = chipsCurrent;
-    }
-
-    public Integer getChipsReserved() {
-        return chipsReserved;
-    }
-
-    public void setChipsReserved(Integer chipsReserved) {
-        this.chipsReserved = chipsReserved;
-    }
-
-    public Integer getChipsAvailable() {
-        return chipsAvailable;
-    }
-
-    public void setChipsAvailable(Integer chipsAvailable) {
-        this.chipsAvailable = chipsAvailable;
     }
 
     public Integer getTotalWins() {
@@ -160,5 +145,21 @@ public class TournamentPlayer {
 
     public void setLastUpdated(Instant lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public Integer getChipsReserved() {
+        return chipsReserved;
+    }
+
+    public void setChipsReserved(Integer chipsReserved) {
+        this.chipsReserved = chipsReserved;
+    }
+
+    public Integer getChipsAvailable() {
+        return chipsAvailable;
+    }
+
+    public void setChipsAvailable(Integer chipsAvailable) {
+        this.chipsAvailable = chipsAvailable;
     }
 }

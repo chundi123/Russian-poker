@@ -1,9 +1,9 @@
 package com.demo.tournament.service;
 
 import com.demo.tournament.entity.Account;
-import com.demo.tournament.entity.Site;
+import com.demo.tournament.entity.Platform;
 import com.demo.tournament.repository.AccountRepository;
-import com.demo.tournament.repository.SiteRepository;
+import com.demo.tournament.repository.PlatformRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,11 +14,11 @@ import java.util.Optional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
-    private final SiteRepository siteRepository;
+    private final PlatformRepository platformRepository;
 
-    public AccountService(AccountRepository accountRepository, SiteRepository siteRepository) {
+    public AccountService(AccountRepository accountRepository, PlatformRepository platformRepository) {
         this.accountRepository = accountRepository;
-        this.siteRepository = siteRepository;
+        this.platformRepository = platformRepository;
     }
 
     @Transactional
@@ -28,19 +28,19 @@ public class AccountService {
             account.setStatus("ACTIVE");
         }
         
-        // Validate site exists if provided
-        if (account.getSite() != null && account.getSite().getId() != null) {
-            Site site = siteRepository.findById(account.getSite().getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Site not found"));
-            account.setSite(site);
+        // Validate platform exists if provided
+        if (account.getPlatform() != null && account.getPlatform().getId() != null) {
+            Platform platform = platformRepository.findById(account.getPlatform().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Platform not found"));
+            account.setPlatform(platform);
         }
-        
+
         // Check unique constraint
-        if (account.getSite() != null) {
-            Optional<Account> existing = accountRepository.findBySiteAndUsername(
-                    account.getSite(), account.getUsername());
+        if (account.getPlatform() != null) {
+            Optional<Account> existing = accountRepository.findByPlatformAndUsername(
+                    account.getPlatform(), account.getUsername());
             if (existing.isPresent()) {
-                throw new IllegalArgumentException("Account with username already exists for this site");
+                throw new IllegalArgumentException("Account with username already exists for this platform");
             }
         }
         
@@ -55,12 +55,12 @@ public class AccountService {
         return accountRepository.findById(id);
     }
 
-    public List<Account> getAccountsBySiteId(Long siteId) {
-        return accountRepository.findBySiteId(siteId);
+    public List<Account> getAccountsByPlatformId(Long platformId) {
+        return accountRepository.findByPlatformId(platformId);
     }
 
-    public List<Account> getAccountsBySite(Site site) {
-        return accountRepository.findBySite(site);
+    public List<Account> getAccountsByPlatform(Platform platform) {
+        return accountRepository.findByPlatform(platform);
     }
 
     @Transactional
@@ -70,11 +70,11 @@ public class AccountService {
         
         if (accountUpdate.getUsername() != null) {
             // Check unique constraint if username is being changed
-            if (account.getSite() != null) {
-                Optional<Account> existing = accountRepository.findBySiteAndUsername(
-                        account.getSite(), accountUpdate.getUsername());
+            if (account.getPlatform() != null) {
+                Optional<Account> existing = accountRepository.findByPlatformAndUsername(
+                        account.getPlatform(), accountUpdate.getUsername());
                 if (existing.isPresent() && !existing.get().getId().equals(id)) {
-                    throw new IllegalArgumentException("Username already exists for this site");
+                    throw new IllegalArgumentException("Username already exists for this platform");
                 }
             }
             account.setUsername(accountUpdate.getUsername());

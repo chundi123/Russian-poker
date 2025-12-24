@@ -1,6 +1,6 @@
 package com.demo.tournament.repository;
 
-import com.demo.tournament.entity.Site;
+import com.demo.tournament.entity.Platform;
 import com.demo.tournament.entity.Tournament;
 import com.demo.tournament.entity.TournamentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,17 +16,17 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
             SELECT t
             FROM Tournament t
             LEFT JOIN FETCH t.status
-            LEFT JOIN FETCH t.site
-            WHERE t.site.id = :siteId
+            LEFT JOIN FETCH t.platform
+            WHERE t.platform.id = :platformId
             ORDER BY t.createdAt DESC
             """)
-    List<Tournament> findBySiteIdOrderByCreatedAtDesc(@Param("siteId") Long siteId);
+    List<Tournament> findByPlatformIdOrderByCreatedAtDesc(@Param("platformId") Long platformId);
 
-    List<Tournament> findBySite(Site site);
+    List<Tournament> findByPlatform(Platform platform);
 
-    List<Tournament> findBySiteAndStatus(Site site, TournamentStatus status);
+    List<Tournament> findByPlatformAndStatus(Platform platform, TournamentStatus status);
 
-    Optional<Tournament> findByIdAndSite(Long id, Site site);
+    Optional<Tournament> findByIdAndPlatform(Long id, Platform platform);
 }
 
 

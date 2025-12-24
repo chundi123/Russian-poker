@@ -7,15 +7,24 @@ import com.demo.tournament.entity.RoundResult;
 import com.demo.tournament.entity.Tournament;
 import com.demo.tournament.entity.TournamentPlayer;
 import com.demo.tournament.service.TournamentService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tournaments")
 @CrossOrigin
+@Slf4j
+@Validated
 public class TournamentController {
 
     private final TournamentService tournamentService;
@@ -25,13 +34,40 @@ public class TournamentController {
     }
 
     @PostMapping
-    public ResponseEntity<Tournament> createTournament(@RequestBody Tournament tournament) {
+    public ResponseEntity<?> createTournament(@RequestBody Tournament tournament) {
         try {
             Tournament created = tournamentService.createTournament(tournament);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body("Invalid tournament data: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/validation-rules")
+    public ResponseEntity<Map<String, Map<String, Object>>> getTournamentValidationRules() {
+        Map<String, Map<String, Object>> rules = Map.of(
+            "name", Map.of(
+                "required", true,
+                "minLength", 3,
+                "maxLength", 100
+            ),
+            "startingChips", Map.of(
+                "required", true,
+                "min", 100,
+                "max", 10000
+            ),
+            "totalRounds", Map.of(
+                "required", false,
+                "min", 1,
+                "max", 20
+            ),
+            "maxPlayers", Map.of(
+                "required", false,
+                "min", 2,
+                "max", 1000
+            )
+        );
+        return ResponseEntity.ok(rules);
     }
 
     @GetMapping
@@ -57,9 +93,9 @@ public class TournamentController {
         }
     }
 
-    @GetMapping("/sites/{siteId}/lobby")
-    public ResponseEntity<List<LobbyTournamentDto>> lobby(@PathVariable Long siteId) {
-        List<LobbyTournamentDto> lobby = tournamentService.lobbyForSite(siteId);
+    @GetMapping("/platforms/{platformId}/lobby")
+    public ResponseEntity<List<LobbyTournamentDto>> lobby(@PathVariable Long platformId) {
+        List<LobbyTournamentDto> lobby = tournamentService.lobbyForPlatform(platformId);
         return ResponseEntity.ok(lobby);
     }
 
@@ -91,7 +127,7 @@ public class TournamentController {
                     return ResponseEntity.ok(new java.util.HashMap<String, Object>() {{
                         put("tournamentId", tournament.getId());
                         put("status", statusCode);
-                        put("currentRound", tournament.getCurrentRound());
+                        put("currentRound", 0); // Not tracked in TMS schema
                     }});
                 })
                 .orElse(ResponseEntity.notFound().build());

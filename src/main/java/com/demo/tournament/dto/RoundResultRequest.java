@@ -1,5 +1,7 @@
 package com.demo.tournament.dto;
 
+import java.time.Instant;
+
 public class RoundResultRequest {
 
     private Long tournamentId;

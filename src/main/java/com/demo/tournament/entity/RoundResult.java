@@ -8,7 +8,7 @@ import java.time.Instant;
 
 @Entity
 @Table(
-    name = "tns_round_result",
+    name = "tms_round_result",
         uniqueConstraints = @UniqueConstraint(columnNames = {"round_id", "player_id"})
 )
 public class RoundResult {
@@ -26,8 +26,8 @@ public class RoundResult {
     @JoinColumn(name = "player_id", nullable = false)
     private Account player;
 
-    @Column(name = "bet_chips", nullable = false)
-    private Integer betChips;
+    @Column(name = "chips", nullable = false)
+    private Integer chips;
 
     @Column(name = "chips_delta", nullable = false)
     private Integer chipsDelta;
@@ -45,6 +45,18 @@ public class RoundResult {
     @UpdateTimestamp
     @Column(name = "last_updated", nullable = false)
     private Instant lastUpdated;
+
+    @Column(name = "external_result_id")
+    private String externalResultId;
+
+    @Column(name = "external_tnx_id")
+    private String externalTransactionId;
+
+    @Column(name = "result_code")
+    private String resultCode;
+
+    @Column(name = "result_description")
+    private String resultDescription;
 
     public Long getRoundResultId() {
         return roundResultId;
@@ -70,12 +82,12 @@ public class RoundResult {
         this.player = player;
     }
 
-    public Integer getBetChips() {
-        return betChips;
+    public Integer getChips() {
+        return chips;
     }
 
-    public void setBetChips(Integer betChips) {
-        this.betChips = betChips;
+    public void setChips(Integer chips) {
+        this.chips = chips;
     }
 
     public Integer getChipsDelta() {
@@ -116,5 +128,37 @@ public class RoundResult {
 
     public void setLastUpdated(Instant lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public String getExternalResultId() {
+        return externalResultId;
+    }
+
+    public void setExternalResultId(String externalResultId) {
+        this.externalResultId = externalResultId;
+    }
+
+    public String getExternalTransactionId() {
+        return externalTransactionId;
+    }
+
+    public void setExternalTransactionId(String externalTransactionId) {
+        this.externalTransactionId = externalTransactionId;
+    }
+
+    public String getResultCode() {
+        return resultCode;
+    }
+
+    public void setResultCode(String resultCode) {
+        this.resultCode = resultCode;
+    }
+
+    public String getResultDescription() {
+        return resultDescription;
+    }
+
+    public void setResultDescription(String resultDescription) {
+        this.resultDescription = resultDescription;
     }
 }

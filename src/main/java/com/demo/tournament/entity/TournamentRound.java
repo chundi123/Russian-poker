@@ -8,7 +8,7 @@ import java.time.Instant;
 
 @Entity
 @Table(
-    name = "tns_tournament_round",
+    name = "tms_tournament_round",
         uniqueConstraints = @UniqueConstraint(columnNames = {"tournament_id", "round_number"})
 )
 public class TournamentRound {
@@ -41,6 +41,15 @@ public class TournamentRound {
     @UpdateTimestamp
     @Column(name = "last_updated", nullable = false)
     private Instant lastUpdated;
+
+    @Column(name = "external_round_id")
+    private String externalRoundId;
+
+    @Column(name = "win_chips")
+    private Integer winChips;
+
+    @Column(name = "bet_chips")
+    private Integer betChips;
 
     public Long getRoundId() {
         return roundId;
@@ -104,5 +113,29 @@ public class TournamentRound {
 
     public void setRoundEndTime(Instant roundEndTime) {
         this.roundEndTime = roundEndTime;
+    }
+
+    public String getExternalRoundId() {
+        return externalRoundId;
+    }
+
+    public void setExternalRoundId(String externalRoundId) {
+        this.externalRoundId = externalRoundId;
+    }
+
+    public Integer getWinChips() {
+        return winChips;
+    }
+
+    public void setWinChips(Integer winChips) {
+        this.winChips = winChips;
+    }
+
+    public Integer getBetChips() {
+        return betChips;
+    }
+
+    public void setBetChips(Integer betChips) {
+        this.betChips = betChips;
     }
 }

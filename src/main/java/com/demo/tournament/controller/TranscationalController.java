@@ -1,8 +1,10 @@
 package com.demo.tournament.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.demo.tournament.dto.PlayerTransactionHistoryDto;
 import com.demo.tournament.dto.RoundResultRequest;
 import com.demo.tournament.entity.RoundResult;
 import com.demo.tournament.service.TournamentService;
@@ -11,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/transactional")
 @RequiredArgsConstructor
@@ -55,12 +56,41 @@ public class TranscationalController {
     @PostMapping("/payroll")
     public ResponseEntity<Map<String, Object>> payrollDynamic(@RequestBody Map<String, Object> payrollData) {
         // Example: {"employeeId": 123, "type": "BONUS", ... more fields ... }
-        // Parentheses used in log message, as requested
-        log.info("(Payroll)(Received): {}", payrollData);
-        // Do something dynamic with the payroll
+        // Process dynamic payroll data
         Map<String, Object> response = new HashMap<>();
         response.put("status", "processed");
         response.put("input", payrollData);
         return ResponseEntity.ok(response);
+    }
+
+    // OWNER VIEW: Get complete player transaction history (all details)
+    @GetMapping("/player/{playerId}/transactions")
+    public ResponseEntity<List<PlayerTransactionHistoryDto>> getPlayerTransactionHistory(@PathVariable Long playerId) {
+        try {
+            List<PlayerTransactionHistoryDto> history = tournamentService.getPlayerTransactionHistory(playerId);
+            return ResponseEntity.ok(history);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // OWNER VIEW: Get player transaction summary with statistics
+    @GetMapping("/player/{playerId}/transaction-summary")
+    public ResponseEntity<Map<String, Object>> getPlayerTransactionSummary(@PathVariable Long playerId) {
+        try {
+            Map<String, Object> summary = tournamentService.getPlayerTransactionSummary(playerId);
+            return ResponseEntity.ok(summary);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // OWNER VIEW: Get all transactions across all players (admin overview)
+    @GetMapping("/admin/all-transactions")
+    public ResponseEntity<List<PlayerTransactionHistoryDto>> getAllTransactions() {
+        // This would require a new service method to get all transactions
+        // For now, return empty list as this needs admin authorization logic
+        List<PlayerTransactionHistoryDto> allTransactions = new java.util.ArrayList<>();
+        return ResponseEntity.ok(allTransactions);
     }
 }

@@ -42,9 +42,9 @@ public class AccountController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/site/{siteId}")
-    public ResponseEntity<List<Account>> getAccountsBySiteId(@PathVariable Long siteId) {
-        List<Account> accounts = accountService.getAccountsBySiteId(siteId);
+    @GetMapping("/platform/{platformId}")
+    public ResponseEntity<List<Account>> getAccountsByPlatformId(@PathVariable Long platformId) {
+        List<Account> accounts = accountService.getAccountsByPlatformId(platformId);
         return ResponseEntity.ok(accounts);
     }
 

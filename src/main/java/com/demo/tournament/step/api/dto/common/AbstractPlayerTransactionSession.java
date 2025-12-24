@@ -9,5 +9,6 @@ public class AbstractPlayerTransactionSession {
     private String gameAccount;
     private String externalRoundId;
     private String tournamentId;
+    private String playerId;
 
 }

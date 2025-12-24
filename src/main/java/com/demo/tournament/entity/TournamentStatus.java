@@ -7,7 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
 
 @Entity
-@Table(name = "tns_tournament_status")
+@Table(name = "tms_tournament_status")
 public class TournamentStatus {
 
     @Id

@@ -7,8 +7,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
 
 @Entity
-@Table(name = "tns_site")
-public class Site {
+@Table(name = "tms_site")
+public class Platform {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,12 +16,12 @@ public class Site {
     private Long id;
 
     @Column(name = "code", length = 50, nullable = false, unique = true)
-    private String siteCode;
+    private String platformCode;
 
     @Column(name = "name", length = 100)
-    private String siteName;
+    private String platformName;
 
-    @Column(name = "status", length = 20, nullable = false)
+    @Column(name = "status", length = 20)
     private String status = "ACTIVE";
 
     @CreationTimestamp
@@ -40,20 +40,20 @@ public class Site {
         this.id = id;
     }
 
-    public String getSiteCode() {
-        return siteCode;
+    public String getPlatformCode() {
+        return platformCode;
     }
 
-    public void setSiteCode(String siteCode) {
-        this.siteCode = siteCode;
+    public void setPlatformCode(String platformCode) {
+        this.platformCode = platformCode;
     }
 
-    public String getSiteName() {
-        return siteName;
+    public String getPlatformName() {
+        return platformName;
     }
 
-    public void setSiteName(String siteName) {
-        this.siteName = siteName;
+    public void setPlatformName(String platformName) {
+        this.platformName = platformName;
     }
 
     public String getStatus() {
@@ -80,5 +80,3 @@ public class Site {
         this.lastUpdated = lastUpdated;
     }
 }
-
-

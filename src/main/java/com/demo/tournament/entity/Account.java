@@ -8,7 +8,7 @@ import java.time.Instant;
 
 @Entity
 @Table(
-    name = "tns_account",
+    name = "tms_account",
     uniqueConstraints = @UniqueConstraint(columnNames = {"site_id", "username"})
 )
 public class Account {
@@ -23,7 +23,7 @@ public class Account {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "site_id")
-    private Site site;
+    private Platform platform;
 
     @Column(name = "status", length = 20, nullable = false)
     private String status = "ACTIVE";
@@ -52,12 +52,12 @@ public class Account {
         this.username = username;
     }
 
-    public Site getSite() {
-        return site;
+    public Platform getPlatform() {
+        return platform;
     }
 
-    public void setSite(Site site) {
-        this.site = site;
+    public void setPlatform(Platform platform) {
+        this.platform = platform;
     }
 
     public String getStatus() {
