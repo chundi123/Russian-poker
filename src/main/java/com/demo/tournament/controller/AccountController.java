@@ -1,7 +1,9 @@
 package com.demo.tournament.controller;
 
+import com.demo.tournament.dto.AccountDto;
 import com.demo.tournament.entity.Account;
 import com.demo.tournament.service.AccountService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +22,7 @@ public class AccountController {
     }
 
     @PostMapping
-    public ResponseEntity<Account> createAccount(@RequestBody Account account) {
+    public ResponseEntity<Account> createAccount(@Valid @RequestBody Account account) {
         try {
             Account created = accountService.createAccount(account);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
@@ -49,7 +51,7 @@ public class AccountController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Account> updateAccount(@PathVariable Long id, @RequestBody Account account) {
+    public ResponseEntity<Account> updateAccount(@PathVariable Long id, @Valid @RequestBody Account account) {
         try {
             Account updated = accountService.updateAccount(id, account);
             return ResponseEntity.ok(updated);

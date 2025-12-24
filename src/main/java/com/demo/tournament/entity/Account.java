@@ -1,6 +1,9 @@
 package com.demo.tournament.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -9,7 +12,7 @@ import java.time.Instant;
 @Entity
 @Table(
     name = "tms_account",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"site_id", "username"})
+    uniqueConstraints = @UniqueConstraint(columnNames = {"platform_id", "username"})
 )
 public class Account {
 
@@ -18,13 +21,17 @@ public class Account {
     @Column(name = "id")
     private Long id;
 
+    @NotBlank(message = "Username cannot be blank")
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     @Column(name = "username", length = 50, nullable = false)
     private String username;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "site_id")
+    @NotNull(message = "Platform is required")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "platform_id")
     private Platform platform;
 
+    @NotBlank(message = "Status cannot be blank")
     @Column(name = "status", length = 20, nullable = false)
     private String status = "ACTIVE";
 

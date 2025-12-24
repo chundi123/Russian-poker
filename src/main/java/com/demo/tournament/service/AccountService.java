@@ -1,25 +1,26 @@
 package com.demo.tournament.service;
 
+import com.demo.tournament.dto.AccountDto;
 import com.demo.tournament.entity.Account;
 import com.demo.tournament.entity.Platform;
 import com.demo.tournament.repository.AccountRepository;
 import com.demo.tournament.repository.PlatformRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class AccountService {
 
     private final AccountRepository accountRepository;
     private final PlatformRepository platformRepository;
-
-    public AccountService(AccountRepository accountRepository, PlatformRepository platformRepository) {
-        this.accountRepository = accountRepository;
-        this.platformRepository = platformRepository;
-    }
 
     @Transactional
     public Account createAccount(Account account) {
@@ -61,6 +62,36 @@ public class AccountService {
 
     public List<Account> getAccountsByPlatform(Platform platform) {
         return accountRepository.findByPlatform(platform);
+    }
+
+    // DTO methods for API responses
+    public List<AccountDto> getAllAccountDtos() {
+        return accountRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<AccountDto> getAccountDtosByPlatformId(Long platformId) {
+        return accountRepository.findByPlatformId(platformId).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    private AccountDto convertToDto(Account account) {
+        AccountDto dto = new AccountDto();
+        dto.setId(account.getId());
+        dto.setUsername(account.getUsername());
+        dto.setStatus(account.getStatus());
+        dto.setCreatedAt(account.getCreatedAt());
+        dto.setLastUpdated(account.getLastUpdated());
+
+        if (account.getPlatform() != null) {
+            dto.setPlatformId(account.getPlatform().getId());
+            dto.setPlatformCode(account.getPlatform().getPlatformCode());
+            dto.setPlatformName(account.getPlatform().getPlatformName());
+        }
+
+        return dto;
     }
 
     @Transactional

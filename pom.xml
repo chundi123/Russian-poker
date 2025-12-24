@@ -24,10 +24,17 @@
      <groupId>org.springframework.boot</groupId>
      <artifactId>spring-boot-starter-web</artifactId>
    </dependency>
-   <dependency>
-     <groupId>org.springframework.boot</groupId>
-     <artifactId>spring-boot-starter-validation</artifactId>
-   </dependency>
+     <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-validation</artifactId>
+     </dependency>
+
+     <!-- Jackson Hibernate support for lazy loading -->
+     <dependency>
+         <groupId>com.fasterxml.jackson.datatype</groupId>
+         <artifactId>jackson-datatype-hibernate5</artifactId>
+         <version>2.15.4</version>
+     </dependency>
    <dependency>
      <groupId>org.springframework.boot</groupId>
      <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -41,10 +48,13 @@
          <artifactId>lombok</artifactId>
          <optional>true</optional>
      </dependency>
+     <!-- Temporarily disabled Quartz for API testing -->
+     <!--
      <dependency>
          <groupId>org.springframework.boot</groupId>
          <artifactId>spring-boot-starter-quartz</artifactId>
      </dependency>
+     -->
      <!-- H2 Database for Testing -->
      <dependency>
          <groupId>com.h2database</groupId>
